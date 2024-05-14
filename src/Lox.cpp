@@ -34,6 +34,7 @@ void lox::runPrompt()
         if(std::getline(std::cin, input))
         {
             run(input);
+            hadError = true;    //每一行之后进行重置
         }
         else
         {
@@ -57,10 +58,17 @@ void lox::runFile(const std::string& filename)
     }
     
     run(source);
+    if(hadError == false) exit(2);
 }
 
 
 void lox::report(int line, const std::string& Where, const std::string& message)
 {
     std::cout<<"line: "<<line<<"  "+Where <<message<<std::endl;
+}
+
+void lox::error(int line, const std::string& message)
+{
+    report(line, "", message);
+    hadError = true;
 }

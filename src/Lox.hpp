@@ -21,8 +21,3 @@ public:
 };
 
 bool lox::hadError = false;
-
-void lox::error(int line, const std::string& message)
-{
-
-}
