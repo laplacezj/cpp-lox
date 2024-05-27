@@ -47,6 +47,6 @@ typedef enum
     VAR,
     WHILE,
     
-    MAX_TOKEN_TYPE
+    TOKEN_EOF
 
 } TokenType;

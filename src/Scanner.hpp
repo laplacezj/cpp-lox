@@ -6,20 +6,33 @@
 
 class Scanner
 {
-private:
-    /* data */
+
 public:
     Scanner(const std::string& source);
     ~Scanner();
     std::vector<Token> scanTokens();
+
+private:
+    //data
+    std::string source;
+    std::vector<Token> tokens;
+
+    int start{0};
+    int current{0};
+    int line{1};
+
+    bool isAtEnd() const;
+    void scanToken();
+
+    char advance();
+
+    void addToken(TokenType type, std::any literal);
+    void addToken(TokenType type);
 };
 
-Scanner::Scanner(const std::string& source)
-{
-}
 
-Scanner::~Scanner()
-{
-}
+
+
+
 
 

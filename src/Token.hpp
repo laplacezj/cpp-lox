@@ -1,20 +1,25 @@
 #pragma once
 #include<string>
+#include<any>
+#include"TokenType.hpp"
 
 class Token
 {
 private:
-    /* data */
+    TokenType type;
+    std::string lexeme;
+    std::any literal;
+    int line;
 public:
-    Token(/* args */);
+    Token(TokenType type, std::string lexeme, std::any literal, int line);
     ~Token();
-    std::string toString();
+
+
+    const std::string& getText() const { return lexeme; }
+    std::string Token::literalToString() const;
+    std::string toString() const;
+
+
 };
 
-Token::Token(/* args */)
-{
-}
 
-Token::~Token()
-{
-}
