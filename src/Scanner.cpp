@@ -74,7 +74,7 @@ char Scanner::peek()
 
 char Scanner::peekNext()
 {
-    if (current + 1 >= static_cast<int>(source.length())) return '\0';
+    if (current + 1 >= static_cast<int>(source.size())) return '\0';
 
     return source.at(current + 1);
 }

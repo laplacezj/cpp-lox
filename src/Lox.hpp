@@ -1,3 +1,4 @@
+#pragma once
 #include<iostream>
 #include<string>
 #include<fstream>
@@ -20,4 +21,3 @@ public:
     static void error(int line, const std::string& message);
 };
 
-bool lox::hadError = false;

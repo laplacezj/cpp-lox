@@ -3,6 +3,8 @@
 #include<fstream>
 #include"Lox.hpp"
 
+bool lox::hadError = false;
+
 lox::lox(/* args */)
 {
     
