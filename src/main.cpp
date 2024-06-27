@@ -1,16 +1,17 @@
-#include<fstream>
-#include<iostream>
-#include<string>
-#include"Lox.hpp"
+#include <fstream>
+#include <iostream>
+#include <string>
+#include "lox/Lox.hpp"
 
 
-int main(int args, char* argv[])
+
+int main(int args, char *argv[])
 {
-    lox myLox;
+    Lox::lox myLox;
 
     if (args > 2)
     {
-        std::cout<<"usage Lox[script]"<<std::endl;
+        std::cout << "usage Lox[script]" << std::endl;
         exit(1);
     }
     else if (args == 2)
@@ -21,6 +22,4 @@ int main(int args, char* argv[])
     {
         myLox.runPrompt();
     }
-    
-    
 }
