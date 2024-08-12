@@ -1,0 +1,40 @@
+# 编译器和编译选项
+CXX := g++
+CXXFLAGS := -Wall -ggdb -Wextra -std=c++17 -Iinclude
+CPPFLAGS := -MMD  # 启用生成依赖文件
+
+
+# 目标可执行文件名称
+TARGET = build/cpp-lox
+
+# 源文件目录
+SRC_DIR = src
+SRCS = $(wildcard $(SRC_DIR)/*.cpp)
+
+# 生成的目标文件和依赖文件
+OBJS = $(SRCS:.cpp=.o)
+DEPS = $(SRCS:.cpp=.d)
+
+
+# 链接所有目标文件生成可执行文件
+$(TARGET): $(OBJS)
+	@mkdir -p build
+	$(CXX) $(OBJS) -o $(TARGET)
+
+
+# 编译规则：将.cpp文件编译成.o文件，并生成依赖文件
+$(SRC_DIR)/%.o: $(SRC_DIR)/%.cpp
+	$(CXX) $(CXXFLAGS) $(CPPFLAGS) -c $< -o $@
+
+
+# 包含所有依赖文件
+-include $(DEPS)
+
+
+# 清理生成的文件
+clean:
+	rm -f $(SRC_DIR)/*.o $(SRC_DIR)/*.d $(TARGET)
+
+# 伪目标
+.PHONY: clean
+
