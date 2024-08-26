@@ -13,6 +13,6 @@ static void report(int line, std::string_view where,
   hadError = true;
 }
 
-void error(int line, std::string_view message) {
+inline void error(int line, std::string_view message) {
   report(line, "", message);
 }

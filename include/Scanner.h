@@ -56,7 +56,6 @@ private:
     bool isAlphaNumeric(char c){return isdigit(c) || isAlpha(c) ;}
 public:
     Scanner(std::string_view source);
-    ~Scanner();
 
     std::vector<Token> scanTokens();
 };
