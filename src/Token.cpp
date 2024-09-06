@@ -34,6 +34,7 @@ std::string Token::toString() const
         literal_text = "false";
         break;
     default:
+        literal_text = "nil";
         break;
     }
 

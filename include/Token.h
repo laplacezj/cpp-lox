@@ -5,7 +5,7 @@
 
 class Token
 {
-private:
+public:
     const TokenType type;
     const std::string lexeme;
     const std::any literal;
