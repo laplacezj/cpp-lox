@@ -49,3 +49,9 @@ test-lexing2:
 	@make >/dev/null
 	@echo "testing cpp-lox with test-lexing2.lox ..."
 	@./$(BUILD_DIR)/cpp-lox tests/test-lexing2.lox | diff -u --color tests/test-lexing2.lox.expected -;
+
+.PHONY: test-parsing
+test-parsing:
+	@make >/dev/null
+	@echo "testing cpp-lox with test-parsing.lox ..."
+	@./$(BUILD_DIR)/cpp-lox tests/test-parsing.lox | diff -u --color tests/test-parsing.lox.expected -;

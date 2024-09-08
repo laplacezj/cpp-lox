@@ -83,7 +83,7 @@ std::shared_ptr<Expr> Parser::unary()
 
 std::shared_ptr<Expr> Parser::primary()
 {
-    
+
     if (match(FALSE))
         return std::make_shared<LiteralExpr>(false);
     if (match(TRUE))
@@ -104,4 +104,42 @@ std::shared_ptr<Expr> Parser::primary()
     }
 
     throw error(peek(), "Expect expression.");
+}
+
+void Parser::synchronize()
+{
+    advance();
+
+    while (!isAtEnd())
+    {
+        if (previous().type == SEMICOLON)
+            return;
+
+        switch (peek().type)
+        {
+        case CLASS:
+        case FUN:
+        case VAR:
+        case FOR:
+        case IF:
+        case WHILE:
+        case PRINT:
+        case RETURN:
+            return;
+        }
+
+        advance();
+    }
+}
+
+std::shared_ptr<Expr> Parser::parse()
+{
+    try
+    {
+        return expression();
+    }
+    catch (ParseError error)
+    {
+        return nullptr;
+    }
 }

@@ -18,7 +18,7 @@ inline void error(int line, std::string_view message) {
 }
 
 
-void error(const Token& token, std::string_view message) {
+inline void error(const Token& token, std::string_view message) {
   if (token.type == END_OF_FILE) {
     report(token.line, " at end", message);
   } else {

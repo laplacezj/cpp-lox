@@ -4,17 +4,30 @@
 #include <string>
 #include <vector>
 #include "Scanner.h"
-#include"Error.h"
+#include "Error.h"
+#include "Parser.h"
+#include "AstPrinter.h"
 
 void run(std::string_view source)
 {
     Scanner scanner = {source};
     std::vector<Token> tokens = scanner.scanTokens();
 
-    for (const Token &token : tokens)
+    // for (const Token &token : tokens)
+    // {
+    //     std::cout << token.toString() << "\n";
+    // }
+
+    Parser parser{tokens};
+
+    std::shared_ptr<Expr> expression = parser.parse();
+    
+    if (hadError)
     {
-        std::cout << token.toString() << "\n";
+        return;
     }
+    std::cout << AstPrinter{}.print(expression) << "\n";
+
 }
 
 void runFile(std::string_view path)

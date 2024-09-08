@@ -1,5 +1,6 @@
 #pragma once
 
+#include <cassert>
 #include <vector>
 #include <memory>
 #include <stdexcept>
@@ -19,6 +20,8 @@ private:
         using std::runtime_error::runtime_error;
     };
 
+    void synchronize();
+
     const std::vector<Token> &tokens;
     int current = 0;
 
@@ -26,11 +29,12 @@ public:
     Parser(const std::vector<Token> &tokens);
     ~Parser();
 
+    std::shared_ptr<Expr> parse();
+
 private:
     std::shared_ptr<Expr> expression();
 
     std::shared_ptr<Expr> equality();
-    std::shared_ptr<Expr> comparison();
     std::shared_ptr<Expr> comparison();
     std::shared_ptr<Expr> term();
     std::shared_ptr<Expr> factor();
