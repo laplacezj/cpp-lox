@@ -154,3 +154,45 @@ bool Interpreter::isEqual(const std::any &a, const std::any &b)
 
     return false;
 }
+
+void Interpreter::interpret(std::shared_ptr<Expr> expression)
+{
+    try
+    {
+        std::any value = evaluate(expression);
+        std::cout << stringify(value) << "\n";
+    }
+    catch (const std::exception &e)
+    {
+        std::cerr << e.what() << '\n';
+    }
+}
+
+std::string Interpreter::stringify(const std::any &object)
+{
+    if (object.type() == typeid(nullptr))
+        return "nil";
+
+    if (object.type() == typeid(double))
+    {
+        std::string text = std::to_string(
+            std::any_cast<double>(object));
+        if (text[text.length() - 2] == '.' &&
+            text[text.length() - 1] == '0')
+        {
+            text = text.substr(0, text.length() - 2);
+        }
+        return text;
+    }
+
+    if (object.type() == typeid(std::string))
+    {
+        return std::any_cast<std::string>(object);
+    }
+    if (object.type() == typeid(bool))
+    {
+        return std::any_cast<bool>(object) ? "true" : "false";
+    }
+
+    return "Error in stringify: object type not recognized.";
+}

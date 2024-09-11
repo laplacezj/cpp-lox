@@ -7,6 +7,9 @@
 #include "Error.h"
 #include "Parser.h"
 #include "AstPrinter.h"
+#include "Interpreter.h"
+
+static Interpreter interpreter{};
 
 void run(std::string_view source)
 {
@@ -26,8 +29,10 @@ void run(std::string_view source)
     {
         return;
     }
-    std::cout << AstPrinter{}.print(expression) << "\n";
 
+    //std::cout << AstPrinter{}.print(expression) << "\n";
+
+    interpreter.interpret(expression);
 }
 
 void runFile(std::string_view path)
@@ -51,6 +56,7 @@ void runFile(std::string_view path)
     {
         std::exit(64);
     }
+    if (hadRuntimeError) std::exit(70);
 }
 
 void runPrompt()

@@ -55,3 +55,16 @@ test-parsing:
 	@make >/dev/null
 	@echo "testing cpp-lox with test-parsing.lox ..."
 	@./$(BUILD_DIR)/cpp-lox tests/test-parsing.lox | diff -u --color tests/test-parsing.lox.expected -;
+
+.PHONY: test-expressions
+test-expressions:
+	@make >/dev/null
+	@echo "testing cpp-lox with test-expressions.lox ..."
+	@./$(BUILD_DIR)/cpp-lox tests/test-expressions.lox 2>&1 | diff -u --color tests/test-expressions.lox.expected -;
+
+
+.PHONY: test-expressions2
+test-expressions2:
+	@make >/dev/null
+	@echo "testing cpp-lox with test-expressions2.lox ..."
+	@./$(BUILD_DIR)/cpp-lox tests/test-expressions2.lox | diff -u --color tests/test-expressions2.lox.expected -;
