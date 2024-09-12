@@ -1,0 +1,81 @@
+#pragma once
+
+#include<any>
+#include<memory>
+#include<utility>
+#include<vector>
+#include "Token.h"
+#include"Expr.h"
+
+struct BlockStmt;
+struct ExpressionStmt;
+struct PrintStmt;
+struct VarStmt;
+
+struct StmtVisitor
+{
+    virtual std::any visitBlockStmt(std::shared_ptr<BlockStmt> stmt) = 0;
+    virtual std::any visitExpressionStmt(std::shared_ptr<ExpressionStmt> stmt) = 0;
+    virtual std::any visitPrintStmt(std::shared_ptr<PrintStmt> stmt) = 0;
+    virtual std::any visitVarStmt(std::shared_ptr<VarStmt> stmt) = 0;
+    virtual ~StmtVisitor() = default;
+};
+
+struct Stmt
+{
+    virtual std::any accept(StmtVisitor& visitor) = 0;
+};
+
+
+
+struct BlockStmt: Stmt, public std::enable_shared_from_this<BlockStmt> {
+  BlockStmt(std::vector<std::shared_ptr<Stmt>> statements)
+    : statements{std::move(statements)}
+  {}
+
+  std::any accept(StmtVisitor& visitor) override {
+    return visitor.visitBlockStmt(shared_from_this());
+  }
+
+  const std::vector<std::shared_ptr<Stmt>> statements;
+};
+
+struct ExpressionStmt: Stmt, public std::enable_shared_from_this<ExpressionStmt> {
+  ExpressionStmt(std::shared_ptr<Expr> expression)
+    : expression{std::move(expression)}
+  {}
+
+  std::any accept(StmtVisitor& visitor) override {
+    return visitor.visitExpressionStmt(shared_from_this());
+  }
+
+  const std::shared_ptr<Expr> expression;
+};
+
+struct PrintStmt: Stmt, public std::enable_shared_from_this<PrintStmt> {
+  PrintStmt(std::shared_ptr<Expr> expression)
+    : expression{std::move(expression)}
+  {}
+
+  std::any accept(StmtVisitor& visitor) override {
+    return visitor.visitPrintStmt(shared_from_this());
+  }
+
+  const std::shared_ptr<Expr> expression;
+};
+
+
+struct VarStmt: Stmt, public std::enable_shared_from_this<VarStmt> {
+  VarStmt(Token name, std::shared_ptr<Expr> initializer)
+    : name{std::move(name)}, initializer{std::move(initializer)}
+  {}
+
+  std::any accept(StmtVisitor& visitor) override {
+    return visitor.visitVarStmt(shared_from_this());
+  }
+
+  const Token name;
+  const std::shared_ptr<Expr> initializer;
+};
+
+

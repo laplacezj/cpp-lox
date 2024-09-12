@@ -155,12 +155,20 @@ bool Interpreter::isEqual(const std::any &a, const std::any &b)
     return false;
 }
 
-void Interpreter::interpret(std::shared_ptr<Expr> expression)
+
+void Interpreter::execute(std::shared_ptr<Stmt> statement)
+{
+    statement->accept(*this);
+}
+
+void Interpreter::interpret(std::vector<std::shared_ptr<Stmt>> statements)
 {
     try
     {
-        std::any value = evaluate(expression);
-        std::cout << stringify(value) << "\n";
+        // std::any value = evaluate(expression);
+        // std::cout << stringify(value) << "\n";
+        for (auto statement : statements)
+            execute(statement);
     }
     catch (const std::exception &e)
     {
@@ -195,4 +203,16 @@ std::string Interpreter::stringify(const std::any &object)
     }
 
     return "Error in stringify: object type not recognized.";
+}
+
+std::any Interpreter::visitExpressionStmt(std::shared_ptr<ExpressionStmt> stmt)
+{
+    evaluate(stmt->expression);
+    return {};
+}
+std::any Interpreter::visitPrintStmt(std::shared_ptr<PrintStmt> stmt)
+{
+    std::any value = evaluate(stmt->expression);
+    std::cout << stringify(value) << "\n";
+    return {};
 }

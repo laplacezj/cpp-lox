@@ -132,14 +132,49 @@ void Parser::synchronize()
     }
 }
 
-std::shared_ptr<Expr> Parser::parse()
+std::vector<std::shared_ptr<Stmt>> Parser::parse()
 {
-    try
+    // try
+    // {
+    //     return expression();
+    // }
+    // catch (ParseError error)
+    // {
+    //     return nullptr;
+    // }
+
+    std::vector<std::shared_ptr<Stmt>> statements;
+
+    while (!isAtEnd())
     {
-        return expression();
+        statements.push_back(statement());
     }
-    catch (ParseError error)
-    {
-        return nullptr;
-    }
+    return statements;
 }
+
+std::shared_ptr<Stmt> Parser::statement()
+{
+    if (match(PRINT))
+        return printStatement();
+
+    return expressionStatement();
+}
+
+std::shared_ptr<Stmt> Parser::printStatement()
+{
+    std::shared_ptr<Expr> value  = expression();
+    consume(SEMICOLON, "Expect ';' after value.");
+    return std::make_shared<PrintStmt>(value);
+}
+
+
+std::shared_ptr<Stmt> Parser::expressionStatement()
+{
+    std::shared_ptr<Expr> value  = expression();
+    consume(SEMICOLON, "Expect ';' after value.");
+    return std::make_shared<ExpressionStmt>(value);
+}
+
+
+
+

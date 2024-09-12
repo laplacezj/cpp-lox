@@ -23,7 +23,7 @@ void run(std::string_view source)
 
     Parser parser{tokens};
 
-    std::shared_ptr<Expr> expression = parser.parse();
+    std::vector<std::shared_ptr<Stmt>> statements = parser.parse();
     
     if (hadError)
     {
@@ -32,7 +32,7 @@ void run(std::string_view source)
 
     //std::cout << AstPrinter{}.print(expression) << "\n";
 
-    interpreter.interpret(expression);
+    interpreter.interpret(statements);
 }
 
 void runFile(std::string_view path)

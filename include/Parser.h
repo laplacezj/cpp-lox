@@ -10,6 +10,7 @@
 
 #include "Token.h"
 #include "Expr.h"
+#include "Stmt.h"
 #include "Error.h"
 
 class Parser
@@ -29,8 +30,8 @@ public:
     Parser(const std::vector<Token> &tokens);
     ~Parser();
 
-    std::shared_ptr<Expr> parse();
-
+    std::vector<std::shared_ptr<Stmt>> parse();
+    std::shared_ptr<Stmt> statement();
 private:
     std::shared_ptr<Expr> expression();
 
@@ -40,6 +41,9 @@ private:
     std::shared_ptr<Expr> factor();
     std::shared_ptr<Expr> unary();
     std::shared_ptr<Expr> primary();
+
+    std::shared_ptr<Stmt> printStatement();
+    std::shared_ptr<Stmt> expressionStatement();
 
     template <class... T>
     bool match(T... type)

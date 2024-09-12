@@ -8,8 +8,9 @@
 #include "Error.h"
 #include "Expr.h"
 #include "RuntimeError.h"
+#include "Stmt.h"
 
-class Interpreter : public ExprVisitor
+class Interpreter : public ExprVisitor, public StmtVisitor
 {
 private:
     std::any evaluate(std::shared_ptr<Expr> expr);
@@ -19,11 +20,18 @@ private:
     bool isEqual(const std::any &a, const std::any &b);
     std::string stringify(const std::any& object);
     
+    void execute(std::shared_ptr<Stmt> statement);
+
 public:
     std::any visitBinaryExpr(std::shared_ptr<BinaryExpr> expr) override;
     std::any visitGroupingExpr(std::shared_ptr<GroupingExpr> expr) override;
     std::any visitLiteralExpr(std::shared_ptr<LiteralExpr> expr) override;
     std::any visitUnaryExpr(std::shared_ptr<UnaryExpr> expr) override;
 
-    void interpret(std::shared_ptr<Expr> expression);
+    std::any visitBlockStmt(std::shared_ptr<BlockStmt> stmt) override;
+    std::any visitExpressionStmt(std::shared_ptr<ExpressionStmt> stmt)override;
+    std::any visitPrintStmt(std::shared_ptr<PrintStmt> stmt)override;
+    std::any visitVarStmt(std::shared_ptr<VarStmt> stmt) override;
+
+    void interpret(std::vector<std::shared_ptr<Stmt>> statements);
 };
