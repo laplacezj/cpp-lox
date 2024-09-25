@@ -10,13 +10,14 @@ struct BinaryExpr;
 struct GroupingExpr;
 struct LiteralExpr;
 struct UnaryExpr;
-
+struct VariableExpr;
 struct ExprVisitor
 {
     virtual std::any visitBinaryExpr(std::shared_ptr<BinaryExpr> expr) = 0;
     virtual std::any visitGroupingExpr(std::shared_ptr<GroupingExpr> expr) = 0;
     virtual std::any visitLiteralExpr(std::shared_ptr<LiteralExpr> expr) = 0;
     virtual std::any visitUnaryExpr(std::shared_ptr<UnaryExpr> expr) = 0;
+    virtual std::any visitVariableExpr(std::shared_ptr<VariableExpr> expr) = 0;
     virtual ~ExprVisitor() = default;
 };
 
@@ -78,4 +79,17 @@ struct UnaryExpr: Expr, public std::enable_shared_from_this<UnaryExpr> {
 
   const Token op;
   const std::shared_ptr<Expr> right;
+};
+
+
+struct VariableExpr: Expr, public std::enable_shared_from_this<VariableExpr> {
+  VariableExpr(Token name)
+    : name{std::move(name)}
+  {}
+
+  std::any accept(ExprVisitor& visitor) override {
+    return visitor.visitVariableExpr(shared_from_this());
+  }
+
+  const Token name;
 };

@@ -26,8 +26,6 @@ struct Stmt
     virtual std::any accept(StmtVisitor& visitor) = 0;
 };
 
-
-
 struct BlockStmt: Stmt, public std::enable_shared_from_this<BlockStmt> {
   BlockStmt(std::vector<std::shared_ptr<Stmt>> statements)
     : statements{std::move(statements)}
