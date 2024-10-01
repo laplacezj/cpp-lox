@@ -11,7 +11,28 @@ Parser::~Parser()
 
 std::shared_ptr<Expr> Parser::expression()
 {
-    return equality();
+    return assignment();
+}
+
+std::shared_ptr<Expr> Parser::assignment()
+{
+    std::shared_ptr<Expr> expr = equality();
+
+    if (match(EQUAL))
+    {
+        Token equals = previous();
+        std::shared_ptr<Expr> value = assignment();
+
+        if (VariableExpr *e = dynamic_cast<VariableExpr *>(expr.get()))
+        {
+            Token name = e->name;
+            return std::make_shared<AssignExpr>(std::move(name), value);
+        }
+
+        error(std::move(equals), "Invalid assignment target.");
+    }
+
+    return expr;
 }
 
 std::shared_ptr<Expr> Parser::equality()
@@ -103,8 +124,9 @@ std::shared_ptr<Expr> Parser::primary()
         return std::make_shared<GroupingExpr>(expr);
     }
 
-    if (match(IDENTIFIER)) {
-      return std::make_shared<VariableExpr>(previous());
+    if (match(IDENTIFIER))
+    {
+        return std::make_shared<VariableExpr>(previous());
     }
 
     throw error(peek(), "Expect expression.");
@@ -161,6 +183,8 @@ std::shared_ptr<Stmt> Parser::statement()
     if (match(PRINT))
         return printStatement();
 
+    if (match(LEFT_BRACE))
+        return std::make_shared<BlockStmt>(block());
     return expressionStatement();
 }
 
@@ -169,6 +193,19 @@ std::shared_ptr<Stmt> Parser::printStatement()
     std::shared_ptr<Expr> value = expression();
     consume(SEMICOLON, "Expect ';' after value.");
     return std::make_shared<PrintStmt>(value);
+}
+
+std::vector<std::shared_ptr<Stmt>> Parser::block()
+{
+    std::vector<std::shared_ptr<Stmt>> statements;
+
+    while (!check(RIGHT_BRACE) && !isAtEnd())
+    {
+        statements.push_back(declaration());
+    }
+
+    consume(RIGHT_BRACE, "Expect '}' after block.");
+    return statements;
 }
 
 std::shared_ptr<Stmt> Parser::expressionStatement()
@@ -194,14 +231,14 @@ std::shared_ptr<Stmt> Parser::declaration()
     }
 }
 
-
 std::shared_ptr<Stmt> Parser::varDeclaration()
 {
     Token name = consume(IDENTIFIER, "Expect variable name.");
 
     std::shared_ptr<Expr> initializer = nullptr;
-    if (match(EQUAL)) {
-      initializer = expression();
+    if (match(EQUAL))
+    {
+        initializer = expression();
     }
 
     consume(SEMICOLON, "Expect ';' after variable declaration.");

@@ -155,7 +155,6 @@ bool Interpreter::isEqual(const std::any &a, const std::any &b)
     return false;
 }
 
-
 void Interpreter::execute(std::shared_ptr<Stmt> statement)
 {
     statement->accept(*this);
@@ -215,4 +214,60 @@ std::any Interpreter::visitPrintStmt(std::shared_ptr<PrintStmt> stmt)
     std::any value = evaluate(stmt->expression);
     std::cout << stringify(value) << "\n";
     return {};
+}
+
+std::any Interpreter::visitVarStmt(std::shared_ptr<VarStmt> stmt)
+{
+    std::any value = nullptr;
+    if (stmt->initializer != nullptr)
+    {
+        value = evaluate(stmt->initializer);
+    }
+
+    environment->define(stmt->name.lexeme, std::move(value));
+
+    return {};
+}
+
+std::any Interpreter::visitVariableExpr(std::shared_ptr<VariableExpr> expr)
+{
+    return environment->get(expr->name);
+}
+
+std::any Interpreter::visitAssignExpr(std::shared_ptr<AssignExpr> expr)
+{
+    std::any value = evaluate(expr->value);
+    environment->assign(expr->name, expr->value);
+
+    return value;
+}
+
+std::any Interpreter::visitBlockStmt(std::shared_ptr<BlockStmt> stmt)
+{
+    executeBlock(stmt->statements,
+                 std::make_shared<Environment>(environment));
+    return {};
+}
+
+void Interpreter::executeBlock(
+    const std::vector<std::shared_ptr<Stmt>> &statements,
+    std::shared_ptr<Environment> environment)
+{
+    std::shared_ptr<Environment> previous = this->environment;
+    try
+    {
+        this->environment = environment;
+
+        for (const std::shared_ptr<Stmt> &statement : statements)
+        {
+            execute(statement);
+        }
+    }
+    catch (...)
+    {
+        this->environment = previous;
+        throw;
+    }
+
+    this->environment = previous;
 }

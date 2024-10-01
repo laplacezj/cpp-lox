@@ -6,6 +6,7 @@
 #include <vector>
 #include "Token.h"
 
+struct AssignExpr;
 struct BinaryExpr;
 struct GroupingExpr;
 struct LiteralExpr;
@@ -13,6 +14,7 @@ struct UnaryExpr;
 struct VariableExpr;
 struct ExprVisitor
 {
+    virtual std::any visitAssignExpr(std::shared_ptr<AssignExpr> expr) = 0;
     virtual std::any visitBinaryExpr(std::shared_ptr<BinaryExpr> expr) = 0;
     virtual std::any visitGroupingExpr(std::shared_ptr<GroupingExpr> expr) = 0;
     virtual std::any visitLiteralExpr(std::shared_ptr<LiteralExpr> expr) = 0;
@@ -92,4 +94,18 @@ struct VariableExpr: Expr, public std::enable_shared_from_this<VariableExpr> {
   }
 
   const Token name;
+};
+
+
+struct AssignExpr: Expr, public std::enable_shared_from_this<AssignExpr> {
+  AssignExpr(Token name, std::shared_ptr<Expr> value)
+    : name{std::move(name)}, value{std::move(value)}
+  {}
+
+  std::any accept(ExprVisitor& visitor) override {
+    return visitor.visitAssignExpr(shared_from_this());
+  }
+
+  const Token name;
+  const std::shared_ptr<Expr> value;
 };
