@@ -9,6 +9,7 @@
 
 struct BlockStmt;
 struct ExpressionStmt;
+struct IfStmt;
 struct PrintStmt;
 struct VarStmt;
 
@@ -16,6 +17,7 @@ struct StmtVisitor
 {
   virtual std::any visitBlockStmt(std::shared_ptr<BlockStmt> stmt) = 0;
   virtual std::any visitExpressionStmt(std::shared_ptr<ExpressionStmt> stmt) = 0;
+  virtual std::any visitIfStmt(std::shared_ptr<IfStmt> stmt) = 0;
   virtual std::any visitPrintStmt(std::shared_ptr<PrintStmt> stmt) = 0;
   virtual std::any visitVarStmt(std::shared_ptr<VarStmt> stmt) = 0;
   virtual ~StmtVisitor() = default;
@@ -86,3 +88,19 @@ struct VarStmt : Stmt, public std::enable_shared_from_this<VarStmt>
   const Token name;
   const std::shared_ptr<Expr> initializer;
 };
+
+
+struct IfStmt: Stmt, public std::enable_shared_from_this<IfStmt> {
+  IfStmt(std::shared_ptr<Expr> condition, std::shared_ptr<Stmt> thenBranch, std::shared_ptr<Stmt> elseBranch)
+    : condition{std::move(condition)}, thenBranch{std::move(thenBranch)}, elseBranch{std::move(elseBranch)}
+  {}
+
+  std::any accept(StmtVisitor& visitor) override {
+    return visitor.visitIfStmt(shared_from_this());
+  }
+
+  const std::shared_ptr<Expr> condition;
+  const std::shared_ptr<Stmt> thenBranch;
+  const std::shared_ptr<Stmt> elseBranch;
+};
+

@@ -93,6 +93,24 @@ std::any Interpreter::visitUnaryExpr(std::shared_ptr<UnaryExpr> expr)
     }
 }
 
+std::any Interpreter::visitLogicalExpr(std::shared_ptr<LogicalExpr> expr)
+{
+    std::any left = evaluate(expr->left);
+
+    if (expr->op.type == OR)
+    {
+        if (isTruthy(left))
+            return left;
+    }
+    else
+    {
+        if (!isTruthy(left))
+            return left;
+    }
+
+    return evaluate(expr->right);
+}
+
 std::any Interpreter::evaluate(std::shared_ptr<Expr> expr)
 {
     return expr->accept(*this);
@@ -270,4 +288,17 @@ void Interpreter::executeBlock(
     }
 
     this->environment = previous;
+}
+
+std::any Interpreter::visitIfStmt(std::shared_ptr<IfStmt> stmt)
+{
+    if (isTruthy(evaluate(stmt->condition)))
+    {
+        execute(stmt->thenBranch);
+    }
+    else if (stmt->elseBranch != nullptr)
+    {
+        execute(stmt->elseBranch);
+    }
+    return {};
 }

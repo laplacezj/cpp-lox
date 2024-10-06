@@ -16,7 +16,7 @@ std::shared_ptr<Expr> Parser::expression()
 
 std::shared_ptr<Expr> Parser::assignment()
 {
-    std::shared_ptr<Expr> expr = equality();
+    std::shared_ptr<Expr> expr = orExpression();
 
     if (match(EQUAL))
     {
@@ -34,6 +34,34 @@ std::shared_ptr<Expr> Parser::assignment()
 
     return expr;
 }
+
+std::shared_ptr<Expr> Parser::orExpression()
+{
+    std::shared_ptr<Expr> expr = andExpression();
+
+    while (match(OR))
+    {
+        Token op = previous();
+        std::shared_ptr<Expr> right = andExpression();
+        expr = std::make_shared<LogicalExpr>(expr, std::move(op), right);
+    }
+
+    return expr;
+}
+
+
+  std::shared_ptr<Expr> Parser::andExpression() {
+    std::shared_ptr<Expr> expr = equality();
+
+    while (match(AND)) {
+      Token op = previous();
+      std::shared_ptr<Expr> right = equality();
+      expr = std::make_shared<LogicalExpr>(expr, std::move(op), right);
+    }
+
+    return expr;
+  }
+
 
 std::shared_ptr<Expr> Parser::equality()
 {
@@ -180,12 +208,32 @@ std::vector<std::shared_ptr<Stmt>> Parser::parse()
 
 std::shared_ptr<Stmt> Parser::statement()
 {
+    if (match(IF))
+        return ifStatement();
+
     if (match(PRINT))
         return printStatement();
 
     if (match(LEFT_BRACE))
         return std::make_shared<BlockStmt>(block());
     return expressionStatement();
+}
+
+std::shared_ptr<Stmt> Parser::ifStatement()
+{
+    consume(LEFT_PAREN, "Expect '(' after 'if'.");
+    std::shared_ptr<Expr> condition = expression();
+    consume(RIGHT_PAREN, "Expect ')' after if condition.");
+
+    std::shared_ptr<Stmt> thenBranch = statement();
+    std::shared_ptr<Stmt> elseBranch = nullptr;
+
+    if (match(ELSE))
+    {
+        elseBranch = statement();
+    }
+
+    return std::make_shared<IfStmt>(condition, thenBranch, elseBranch);
 }
 
 std::shared_ptr<Stmt> Parser::printStatement()
