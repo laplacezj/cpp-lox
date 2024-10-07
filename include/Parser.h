@@ -45,6 +45,8 @@ private:
     std::shared_ptr<Expr> unary();
     std::shared_ptr<Expr> primary();
 
+    std::shared_ptr<Stmt> forStatement();
+    std::shared_ptr<Stmt> whileStatement();
     std::vector<std::shared_ptr<Stmt>> block();
     std::shared_ptr<Stmt> printStatement();
     std::shared_ptr<Stmt> ifStatement();

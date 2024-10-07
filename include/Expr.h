@@ -7,10 +7,10 @@
 #include "Token.h"
 
 struct AssignExpr;
+struct LogicalExpr;
 struct BinaryExpr;
 struct GroupingExpr;
 struct LiteralExpr;
-struct LogicalExpr;
 struct UnaryExpr;
 struct VariableExpr;
 

@@ -302,3 +302,12 @@ std::any Interpreter::visitIfStmt(std::shared_ptr<IfStmt> stmt)
     }
     return {};
 }
+
+std::any Interpreter::visitWhileStmt(std::shared_ptr<WhileStmt> stmt)
+{
+    while (isTruthy(evaluate(stmt->condition)))
+    {
+        execute(stmt->body);
+    }
+    return {};
+}

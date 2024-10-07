@@ -43,6 +43,7 @@ public:
     std::any visitPrintStmt(std::shared_ptr<PrintStmt> stmt) override;
     std::any visitVarStmt(std::shared_ptr<VarStmt> stmt) override;
     std::any visitIfStmt(std::shared_ptr<IfStmt> stmt) override;
+    std::any visitWhileStmt(std::shared_ptr<WhileStmt> stmt) override;
 
     void interpret(std::vector<std::shared_ptr<Stmt>> statements);
 };
