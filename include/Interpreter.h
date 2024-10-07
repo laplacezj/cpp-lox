@@ -2,6 +2,7 @@
 
 #include <any>
 #include <iostream>
+#include <chrono>
 #include <memory>
 #include <stdexcept>
 #include <string>
@@ -10,13 +11,33 @@
 #include "RuntimeError.h"
 #include "Stmt.h"
 #include "Environment.h"
+#include "LoxCallable.h"
+#include "LoxFunction.h"
+#include "LoxReturn.h"
+
+class NativeClock: public LoxCallable {
+public:
+  int arity() override { return 0; }
+
+  std::any call(Interpreter& interpreter,
+                std::vector<std::any> arguments) override {
+    auto ticks = std::chrono::system_clock::now().time_since_epoch();
+    return std::chrono::duration<double>{ticks}.count() / 1000.0;
+  }
+
+  std::string toString() override { return "<native fn>"; }
+};
+
 
 class Interpreter : public ExprVisitor, public StmtVisitor
 {
-private:
-    // data
-    std::shared_ptr<Environment> environment{new Environment};
+friend class LoxFunction;
 
+// data
+public:  std::shared_ptr<Environment> globals{new Environment};
+private: std::shared_ptr<Environment> environment = globals;
+
+private:
     std::any evaluate(std::shared_ptr<Expr> expr);
     void checkNumberOperand(const Token &op, const std::any &operand);
     void checkNumberOperands(const Token &op, const std::any &left, const std::any &right);
@@ -37,6 +58,7 @@ public:
     std::any visitUnaryExpr(std::shared_ptr<UnaryExpr> expr) override;
     std::any visitVariableExpr(std::shared_ptr<VariableExpr> expr) override;
     std::any visitLogicalExpr(std::shared_ptr<LogicalExpr> expr) override;
+    std::any visitCallExpr(std::shared_ptr<CallExpr> expr) override;
 
     std::any visitBlockStmt(std::shared_ptr<BlockStmt> stmt) override;
     std::any visitExpressionStmt(std::shared_ptr<ExpressionStmt> stmt) override;
@@ -44,6 +66,11 @@ public:
     std::any visitVarStmt(std::shared_ptr<VarStmt> stmt) override;
     std::any visitIfStmt(std::shared_ptr<IfStmt> stmt) override;
     std::any visitWhileStmt(std::shared_ptr<WhileStmt> stmt) override;
+    std::any visitFunctionStmt(std::shared_ptr<FunctionStmt> stmt) override;
+    std::any visitReturnStmt(std::shared_ptr<ReturnStmt> stmt) override;
 
     void interpret(std::vector<std::shared_ptr<Stmt>> statements);
+
+    Interpreter();
+
 };

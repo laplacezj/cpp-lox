@@ -12,6 +12,7 @@ struct BinaryExpr;
 struct GroupingExpr;
 struct LiteralExpr;
 struct UnaryExpr;
+struct CallExpr;
 struct VariableExpr;
 
 struct ExprVisitor
@@ -23,6 +24,7 @@ struct ExprVisitor
   virtual std::any visitGroupingExpr(std::shared_ptr<GroupingExpr> expr) = 0;
   virtual std::any visitLiteralExpr(std::shared_ptr<LiteralExpr> expr) = 0;
   virtual std::any visitLogicalExpr(std::shared_ptr<LogicalExpr> expr) = 0;
+  virtual std::any visitCallExpr(std::shared_ptr<CallExpr> expr) = 0;
   virtual ~ExprVisitor() = default;
 };
 
@@ -145,3 +147,19 @@ struct AssignExpr : Expr, public std::enable_shared_from_this<AssignExpr>
   const Token name;
   const std::shared_ptr<Expr> value;
 };
+
+
+struct CallExpr: Expr, public std::enable_shared_from_this<CallExpr> {
+  CallExpr(std::shared_ptr<Expr> callee, Token paren, std::vector<std::shared_ptr<Expr>> arguments)
+    : callee{std::move(callee)}, paren{std::move(paren)}, arguments{std::move(arguments)}
+  {}
+
+  std::any accept(ExprVisitor& visitor) override {
+    return visitor.visitCallExpr(shared_from_this());
+  }
+
+  const std::shared_ptr<Expr> callee;
+  const Token paren;
+  const std::vector<std::shared_ptr<Expr>> arguments;
+};
+

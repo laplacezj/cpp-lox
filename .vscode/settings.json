@@ -49,6 +49,9 @@
         "map": "cpp",
         "any": "cpp",
         "sstream": "cpp",
-        "cassert": "cpp"
+        "cassert": "cpp",
+        "chrono": "cpp",
+        "ctime": "cpp",
+        "ratio": "cpp"
     }
 }

@@ -43,8 +43,11 @@ private:
     std::shared_ptr<Expr> term();
     std::shared_ptr<Expr> factor();
     std::shared_ptr<Expr> unary();
+    std::shared_ptr<Expr> call();
+    std::shared_ptr<Expr> finishCall(std::shared_ptr<Expr> callee);
     std::shared_ptr<Expr> primary();
 
+    std::shared_ptr<Stmt> returnStatement();
     std::shared_ptr<Stmt> forStatement();
     std::shared_ptr<Stmt> whileStatement();
     std::vector<std::shared_ptr<Stmt>> block();
@@ -53,6 +56,7 @@ private:
     std::shared_ptr<Stmt> expressionStatement();
     std::shared_ptr<Stmt> declaration();
     std::shared_ptr<Stmt> varDeclaration();
+    std::shared_ptr<FunctionStmt> function(std::string kind);
 
     template <class... T>
     bool match(T... type)
