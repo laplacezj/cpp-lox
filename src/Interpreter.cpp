@@ -289,13 +289,38 @@ std::any Interpreter::visitVarStmt(std::shared_ptr<VarStmt> stmt)
 
 std::any Interpreter::visitVariableExpr(std::shared_ptr<VariableExpr> expr)
 {
-    return environment->get(expr->name);
+    return lookUpVariable(expr->name, expr);
+}
+
+std::any Interpreter::lookUpVariable(const Token &name,
+                                     std::shared_ptr<Expr> expr)
+{
+    auto elem = locals.find(expr);
+    if (elem != locals.end())
+    {
+        int distance = elem->second;
+        return environment->getAt(distance, name.lexeme);
+    }
+    else
+    {
+        return globals->get(name);
+    }
 }
 
 std::any Interpreter::visitAssignExpr(std::shared_ptr<AssignExpr> expr)
 {
     std::any value = evaluate(expr->value);
-    environment->assign(expr->name, expr->value);
+
+    auto elem = locals.find(expr);
+    if (elem != locals.end())
+    {
+        int distance = elem->second;
+        environment->assignAt(distance, expr->name, value);
+    }
+    else
+    {
+        globals->assign(expr->name, value);
+    }
 
     return value;
 }
@@ -366,4 +391,9 @@ std::any Interpreter::visitReturnStmt(std::shared_ptr<ReturnStmt> stmt)
         value = evaluate(stmt->value);
 
     throw LoxReturn{value};
+}
+
+void Interpreter::resolve(std::shared_ptr<Expr> expr, int depth)
+{
+    locals[expr] = depth;
 }

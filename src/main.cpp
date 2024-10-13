@@ -8,6 +8,7 @@
 #include "Parser.h"
 #include "AstPrinter.h"
 #include "Interpreter.h"
+#include "Resolver.h"
 
 static Interpreter interpreter{};
 
@@ -24,13 +25,14 @@ void run(std::string_view source)
     Parser parser{tokens};
 
     std::vector<std::shared_ptr<Stmt>> statements = parser.parse();
-    
-    if (hadError)
-    {
-        return;
-    }
 
-    //std::cout << AstPrinter{}.print(expression) << "\n";
+    if (hadError) return;
+
+    Resolver resolver{interpreter};
+    resolver.resolve(statements);
+
+    // std::cout << AstPrinter{}.print(expression) << "\n";
+    if (hadError) return;
 
     interpreter.interpret(statements);
 }
@@ -56,7 +58,8 @@ void runFile(std::string_view path)
     {
         std::exit(64);
     }
-    if (hadRuntimeError) std::exit(70);
+    if (hadRuntimeError)
+        std::exit(70);
 }
 
 void runPrompt()
