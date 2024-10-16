@@ -131,6 +131,11 @@ std::any Resolver::visitReturnStmt(std::shared_ptr<ReturnStmt> stmt)
 
     if (stmt->value != nullptr)
     {
+        if (currentFunction == FunctionType::INITIALIZER)
+        {
+            ::error(stmt->keyword,
+                      "Can't return a value from an initializer.");
+        }
         resolve(stmt->value);
     }
 
@@ -221,5 +226,61 @@ std::any Resolver::visitVariableExpr(
     }
 
     resolveLocal(expr, expr->name);
+    return {};
+}
+
+std::any Resolver::visitClassStmt(std::shared_ptr<ClassStmt> stmt)
+{
+    ClassType enclosingClass = currentClass;
+    currentClass = ClassType::CLASS;
+
+    declare(stmt->name);
+    define(stmt->name);
+
+    beginScope();
+    scopes.back()["this"] = true;
+
+    for (auto method : stmt->methods)
+    {
+        FunctionType declaration = FunctionType::METHOD;
+
+        if (method->name.lexeme == "init")
+        {
+            declaration = FunctionType::INITIALIZER;
+        }
+
+        resolveFunction(method, declaration);
+    }
+
+    endScope();
+
+    currentClass = enclosingClass;
+
+    return {};
+}
+
+std::any Resolver::visitGetExpr(std::shared_ptr<GetExpr> expr)
+{
+    resolve(expr->object);
+    return {};
+}
+
+std::any Resolver::visitSetExpr(std::shared_ptr<SetExpr> expr)
+{
+    resolve(expr->value);
+    resolve(expr->object);
+    return {};
+}
+std::any Resolver::visitThisExpr(std::shared_ptr<ThisExpr> expr)
+{
+
+    if (currentClass == ClassType::NONE)
+    {
+        error(expr->keyword,
+              "Can't use 'this' outside of a class.");
+        return {};
+    }
+
+    resolveLocal(expr, expr->keyword);
     return {};
 }

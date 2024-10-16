@@ -57,6 +57,7 @@ private:
     std::shared_ptr<Stmt> declaration();
     std::shared_ptr<Stmt> varDeclaration();
     std::shared_ptr<FunctionStmt> function(std::string kind);
+    std::shared_ptr<Stmt> classDeclaration();
 
     template <class... T>
     bool match(T... type)

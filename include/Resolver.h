@@ -6,7 +6,7 @@
 #include "LoxFunction.h"
 #include <memory>
 #include <vector>
-#include<functional>
+#include <functional>
 
 class Resolver : public ExprVisitor, public StmtVisitor
 {
@@ -17,10 +17,20 @@ private:
     enum class FunctionType
     {
         NONE,
-        FUNCTION
+        FUNCTION,
+        INITIALIZER,
+        METHOD
     };
 
     FunctionType currentFunction = FunctionType::NONE;
+    
+    enum class ClassType
+    {
+        NONE,
+        CLASS
+    };
+
+    ClassType currentClass = ClassType::NONE;
 
 private:
     void resolve(const std::shared_ptr<Stmt> &stmt);
@@ -45,6 +55,9 @@ public:
     std::any visitVariableExpr(std::shared_ptr<VariableExpr> expr) override;
     std::any visitLogicalExpr(std::shared_ptr<LogicalExpr> expr) override;
     std::any visitCallExpr(std::shared_ptr<CallExpr> expr) override;
+    std::any visitGetExpr(std::shared_ptr<GetExpr> expr) override;
+    std::any visitSetExpr(std::shared_ptr<SetExpr> expr) override;
+    std::any visitThisExpr(std::shared_ptr<ThisExpr> expr) override;
 
     std::any visitBlockStmt(std::shared_ptr<BlockStmt> stmt) override;
     std::any visitExpressionStmt(std::shared_ptr<ExpressionStmt> stmt) override;
@@ -54,4 +67,5 @@ public:
     std::any visitWhileStmt(std::shared_ptr<WhileStmt> stmt) override;
     std::any visitFunctionStmt(std::shared_ptr<FunctionStmt> stmt) override;
     std::any visitReturnStmt(std::shared_ptr<ReturnStmt> stmt) override;
+    std::any visitClassStmt(std::shared_ptr<ClassStmt> stmt) override;
 };

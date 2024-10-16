@@ -28,6 +28,10 @@ std::shared_ptr<Expr> Parser::assignment()
             Token name = e->name;
             return std::make_shared<AssignExpr>(std::move(name), value);
         }
+        else if (GetExpr *get = dynamic_cast<GetExpr *>(expr.get()))
+        {
+            return std::make_shared<SetExpr>(get->object, get->name, value);
+        }
 
         error(std::move(equals), "Invalid assignment target.");
     }
@@ -164,6 +168,11 @@ std::shared_ptr<Expr> Parser::call()
         {
             expr = finishCall(expr);
         }
+        else if (match(DOT))
+        {
+            Token name = consume(IDENTIFIER, "Expect property name after '.'.");
+            expr = std::make_shared<GetExpr>(expr, std::move(name));
+        }
         else
         {
             break;
@@ -194,6 +203,8 @@ std::shared_ptr<Expr> Parser::primary()
         consume(RIGHT_PAREN, "Expect ')' after expression.");
         return std::make_shared<GroupingExpr>(expr);
     }
+
+    if (match(THIS)) return std::make_shared<ThisExpr>(previous());
 
     if (match(IDENTIFIER))
     {
@@ -408,6 +419,9 @@ std::shared_ptr<Stmt> Parser::declaration()
         if (match(VAR))
             return varDeclaration();
 
+        if (match(CLASS))
+            return classDeclaration();
+
         return statement();
     }
     catch (ParseError error)
@@ -415,6 +429,21 @@ std::shared_ptr<Stmt> Parser::declaration()
         synchronize();
         return nullptr;
     }
+}
+
+std::shared_ptr<Stmt> Parser::classDeclaration()
+{
+    Token name = consume(IDENTIFIER, "Expect class name.");
+    consume(LEFT_BRACE, "Expect '{' before class body.");
+
+    std::vector<std::shared_ptr<FunctionStmt>> methods;
+    while (!check(RIGHT_BRACE) && !isAtEnd())
+    {
+        methods.push_back(function("method"));
+    }
+
+    consume(RIGHT_BRACE, "Expect '}' after class body.");
+    return std::make_shared<ClassStmt>(std::move(name), std::move(methods));
 }
 
 std::shared_ptr<FunctionStmt> Parser::function(std::string kind)

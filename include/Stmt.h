@@ -8,6 +8,7 @@
 #include "Expr.h"
 
 struct BlockStmt;
+struct ClassStmt;
 struct ExpressionStmt;
 struct IfStmt;
 struct PrintStmt;
@@ -19,6 +20,7 @@ struct ReturnStmt;
 struct StmtVisitor
 {
   virtual std::any visitFunctionStmt(std::shared_ptr<FunctionStmt> stmt) = 0;
+  virtual std::any visitClassStmt(std::shared_ptr<ClassStmt> stmt) = 0;
   virtual std::any visitBlockStmt(std::shared_ptr<BlockStmt> stmt) = 0;
   virtual std::any visitExpressionStmt(std::shared_ptr<ExpressionStmt> stmt) = 0;
   virtual std::any visitIfStmt(std::shared_ptr<IfStmt> stmt) = 0;
@@ -129,13 +131,15 @@ struct WhileStmt : Stmt, public std::enable_shared_from_this<WhileStmt>
   const std::shared_ptr<Stmt> body;
 };
 
-
-struct FunctionStmt: Stmt, public std::enable_shared_from_this<FunctionStmt> {
+struct FunctionStmt : Stmt, public std::enable_shared_from_this<FunctionStmt>
+{
   FunctionStmt(Token name, std::vector<Token> params, std::vector<std::shared_ptr<Stmt>> body)
-    : name{std::move(name)}, params{std::move(params)}, body{std::move(body)}
-  {}
+      : name{std::move(name)}, params{std::move(params)}, body{std::move(body)}
+  {
+  }
 
-  std::any accept(StmtVisitor& visitor) override {
+  std::any accept(StmtVisitor &visitor) override
+  {
     return visitor.visitFunctionStmt(shared_from_this());
   }
 
@@ -144,13 +148,15 @@ struct FunctionStmt: Stmt, public std::enable_shared_from_this<FunctionStmt> {
   const std::vector<std::shared_ptr<Stmt>> body;
 };
 
-
-struct ReturnStmt: Stmt, public std::enable_shared_from_this<ReturnStmt> {
+struct ReturnStmt : Stmt, public std::enable_shared_from_this<ReturnStmt>
+{
   ReturnStmt(Token keyword, std::shared_ptr<Expr> value)
-    : keyword{std::move(keyword)}, value{std::move(value)}
-  {}
+      : keyword{std::move(keyword)}, value{std::move(value)}
+  {
+  }
 
-  std::any accept(StmtVisitor& visitor) override {
+  std::any accept(StmtVisitor &visitor) override
+  {
     return visitor.visitReturnStmt(shared_from_this());
   }
 
@@ -159,3 +165,18 @@ struct ReturnStmt: Stmt, public std::enable_shared_from_this<ReturnStmt> {
 };
 
 
+struct ClassStmt : Stmt, public std::enable_shared_from_this<ClassStmt>
+{
+  ClassStmt(Token name, std::vector<std::shared_ptr<FunctionStmt>> methods)
+      : name{std::move(name)}, methods{std::move(methods)}
+  {
+  }
+
+  std::any accept(StmtVisitor &visitor) override
+  {
+    return visitor.visitClassStmt(shared_from_this());
+  }
+
+  const Token name;
+  const std::vector<std::shared_ptr<FunctionStmt>> methods;
+};

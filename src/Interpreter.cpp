@@ -1,5 +1,6 @@
 #include "Interpreter.h"
 #include "RuntimeError.h"
+#include "LoxClass.h"
 
 Interpreter::Interpreter()
 {
@@ -379,7 +380,7 @@ std::any Interpreter::visitWhileStmt(std::shared_ptr<WhileStmt> stmt)
 
 std::any Interpreter::visitFunctionStmt(std::shared_ptr<FunctionStmt> stmt)
 {
-    auto function = std::make_shared<LoxFunction>(stmt, environment);
+    auto function = std::make_shared<LoxFunction>(stmt, environment,false);
     environment->define(stmt->name.lexeme, function);
     return {};
 }
@@ -396,4 +397,59 @@ std::any Interpreter::visitReturnStmt(std::shared_ptr<ReturnStmt> stmt)
 void Interpreter::resolve(std::shared_ptr<Expr> expr, int depth)
 {
     locals[expr] = depth;
+}
+
+std::any Interpreter::visitClassStmt(std::shared_ptr<ClassStmt> stmt)
+{
+    environment->define(stmt->name.lexeme, nullptr);
+
+    std::map<std::string, std::shared_ptr<LoxFunction>> methods;
+
+    for (std::shared_ptr<FunctionStmt> method : stmt->methods)
+    {
+        auto function = std::make_shared<LoxFunction>(method,
+                                                      // environment);
+                                                      environment, method->name.lexeme == "init");
+        methods[method->name.lexeme] = function;
+    }
+
+    auto klass = std::make_shared<LoxClass>(stmt->name.lexeme, methods);
+    
+    environment->assign(stmt->name, klass);
+    return {};
+}
+
+std::any Interpreter::visitGetExpr(std::shared_ptr<GetExpr> expr)
+{
+    std::any object = evaluate(expr->object);
+    if (object.type() == typeid(std::shared_ptr<LoxInstance>))
+    {
+        return std::any_cast<std::shared_ptr<LoxInstance>>(object)->get(expr->name);
+    }
+
+    throw RuntimeError(expr->name,
+                       "Only instances have properties.");
+}
+
+std::any Interpreter::visitSetExpr(std::shared_ptr<SetExpr> expr)
+{
+    std::any object = evaluate(expr->object);
+
+    if (object.type() != typeid(std::shared_ptr<LoxInstance>))
+    {
+        throw RuntimeError(expr->name,
+                           "Only instances have fields.");
+    }
+
+    std::any value = evaluate(expr->value);
+
+    std::any_cast<
+        std::shared_ptr<LoxInstance>>(object)
+        ->set(expr->name, value);
+    return value;
+}
+
+std::any Interpreter::visitThisExpr(std::shared_ptr<ThisExpr> expr)
+{
+    return lookUpVariable(expr->keyword, expr);
 }
